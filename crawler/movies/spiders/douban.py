@@ -37,6 +37,16 @@ class DoubanSpider(scrapy.Spider):
         Rule(LinkExtractor(allow=r"/tag/$"),
             callback="parse_type_list", follow=True)
     )
+    def __init__(self):
+        self.headers =HEADERS
+        self.cookies ={}
+
+    def start_requests(self):
+        for i, url in enumerate(self.start_urls):
+            yield FormRequest(url, meta = {'cookiejar': i}, \
+                              headers = self.headers, \
+                              cookies =self.cookies,
+                              callback = self.parse)#jump to login page
 
     def parse(self, response):
         yield Request(response.url,callback=self.parse_type_list,headers=HEADERS)
