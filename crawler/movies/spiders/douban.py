@@ -7,7 +7,17 @@ from scrapy.selector import Selector
 from scrapy.http import Request, FormRequest
 from movies.items import MovieItem
 import re
-
+HEADERS = {
+    "Host": "movie.douban.com",
+"Connection": "keep-alive",
+"Cache-Control": "max-age=0",
+"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+"X-FirePHP-Version": "0.0.6",
+"Referer": "http://www.douban.com/search?source=suggest&q=%E7%9C%9F%E6%8E%A2",
+"Accept-Encoding":"gzip, deflate, sdch",
+"Accept-Language":"zh-CN,zh;q=0.8",
+"Cookie":'bid="aLN/Y+kI25E"; ll="118172"; ue="modongming91@126.com"; viewed="6845414_3930318_6959482"; ct=y; dbcl2=""44748146:"BYuRk+lR8vE"; ck="Pi4Y"; _pk_ref.100001.4cf6=%5B%22%22%2C%22%22%2C1434095444%2C%22http%3A%2F%2Fwww.douban.com%2Fsearch%3Fcat%3D1002%26q%3D%25E7%259C%259F%25E6%258E%25A2%22%5D; __utma=223695111.1040102943.1430726837.1434093610.1434095444.14; __utmc=223695111; __utmz=223695111.1434095444.14.9.utmcsr=douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/search; _pk_id.100001.4cf6=bfebd73476e6546e.1430726838.14.1434096249.1434093610.; ap=1; push_noty_num=3; push_doumail_num=8; __utma=30149280.67824527.1420785980.1434095434.1434097788.42; __utmb=30149280.2.10.1434097788; __utmc=30149280; __utmz=30149280.1434097788.42.30.utmcsr=baidu|utmccn=(organic)|utmcmd=organic|utmctr=scrapy%20redis%20mongo; __utmv=30149280.4474'
+}
 TV_RUNTIME_RE = re.compile(ur'单集片长: (\d+)')
 LANGUAGES_RE = re.compile(ur"语言:</span> (.+?)<br>")
 COUNTRIES_RE = re.compile(ur"制片国家/地区:</span> (.+?)<br>")
@@ -29,18 +39,18 @@ class DoubanSpider(scrapy.Spider):
     )
 
     def parse(self, response):
-        yield Request(response.url,callback=self.parse_type_list)
+        yield Request(response.url,callback=self.parse_type_list,headers=HEADERS)
         pass
     def parse_type_list(self,response):
         #$x('//*[@class="tagCol"]/tbody/tr/td/a/text()')
         for tag in response.xpath('//*[@class="tagCol"]/tbody/tr/td/a/text()').extract():
             log.msg('tag : '+tag)
-            yield Request('http://www.douban.com/tag/'+tag.encode('utf8')+'/movie',callback=self.parse_list)
+            yield Request('http://www.douban.com/tag/'+tag.encode('utf8')+'/movie',headers=HEADERS,callback=self.parse_list)
         pass
     def parse_list(self,response):
         #log.msg('crawle list : '+response.url)
         for link in response.xpath(('//*[@class="article"]/div/dl/dd/a/@href')).extract():
-            yield Request(link,callback=self.parse_item)
+            yield Request(link,headers=HEADERS,callback=self.parse_item)
         pass
     def parse_item(self,response):
         log.msg('crawle item : '+response.url)
