@@ -13,9 +13,14 @@ BOT_NAME = 'movies'
 SPIDER_MODULES = ['movies.spiders']
 NEWSPIDER_MODULE = 'movies.spiders'
 DOWNLOADER_MIDDLEWARES = {
-        'movies.downloadmiddleware.useragent.RandomUserAgentMiddleware': 400,
-        'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
+        'movies.middleware.downloadmiddleware.RandomUserAgentMiddleware': 400,
+        'movies.middleware.downloadmiddleware.CustomCookieMiddleware': 700,
+        'movies.middleware.downloadmiddleware.CustomHeadersMiddleware': 500,
+        'scrapy.contrib.downloadermiddleware.useragent.CustomHeadersMiddleware': None,
    }
+ITEM_PIPELINES = {
+    'movies.pipelines.MoviesPipeline': 800,
+}
 DEFAULT_REQUEST_HEADERS={
     "Host": "movie.douban.com",
 "Connection": "keep-alive",
