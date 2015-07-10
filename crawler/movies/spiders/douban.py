@@ -1,23 +1,12 @@
 # -*- coding: utf-8 -*-
 import scrapy
-from scrapy.contrib.linkextractors import LinkExtractor
-from scrapy.contrib.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
+from scrapy.spiders import CrawlSpider, Rule
 from scrapy import log
 from scrapy.selector import Selector
 from scrapy.http import Request, FormRequest
 from movies.items import MovieItem
 import re
-# HEADERS = {
-#     "Host": "movie.douban.com",
-# "Connection": "keep-alive",
-# "Cache-Control": "max-age=0",
-# "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-# "X-FirePHP-Version": "0.0.6",
-# "Referer": "http://www.douban.com/search?source=suggest&q=%E7%9C%9F%E6%8E%A2",
-# "Accept-Encoding":"gzip, deflate, sdch",
-# "Accept-Language":"zh-CN,zh;q=0.8",
-# "Cookie":'bid="aLN/Y+kI25E"; ll="118172"; ue="modongming91@126.com"; viewed="6845414_3930318_6959482"; ct=y; dbcl2=""44748146:"BYuRk+lR8vE"; ck="Pi4Y"; _pk_ref.100001.4cf6=%5B%22%22%2C%22%22%2C1434095444%2C%22http%3A%2F%2Fwww.douban.com%2Fsearch%3Fcat%3D1002%26q%3D%25E7%259C%259F%25E6%258E%25A2%22%5D; __utma=223695111.1040102943.1430726837.1434093610.1434095444.14; __utmc=223695111; __utmz=223695111.1434095444.14.9.utmcsr=douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/search; _pk_id.100001.4cf6=bfebd73476e6546e.1430726838.14.1434096249.1434093610.; ap=1; push_noty_num=3; push_doumail_num=8; __utma=30149280.67824527.1420785980.1434095434.1434097788.42; __utmb=30149280.2.10.1434097788; __utmc=30149280; __utmz=30149280.1434097788.42.30.utmcsr=baidu|utmccn=(organic)|utmcmd=organic|utmctr=scrapy%20redis%20mongo; __utmv=30149280.4474'
-# }
 TV_RUNTIME_RE = re.compile(ur'单集片长: (\d+)')
 LANGUAGES_RE = re.compile(ur"语言:</span> (.+?)<br>")
 COUNTRIES_RE = re.compile(ur"制片国家/地区:</span> (.+?)<br>")
@@ -26,48 +15,41 @@ IMDB_RE = re.compile(ur"http:\/\/www\.imdb\.com\/title\/\w+")
 # SCREENWRITER_RE = re.compile(ur"编剧:</span> (.+?)<br>")
 NUM_RE = re.compile(r"(\d+)")
 NEXT_PAGE_RE=re.compile(r'\?start=\d+')
-class DoubanSpider(scrapy.Spider):
+class DoubanSpider(CrawlSpider):
     name = "douban"
     allowed_domains = ["movie.douban.com"]
-    start_urls = ['http://movie.douban.com/tag/']
+    start_urls = ['http://movie.douban.com']
     rules = (
-        # Rule(LinkExtractor(allow=r"/subject/\d+/\S*"),
-        #     callback="parse_item", follow=True),
-        # Rule(LinkExtractor(allow=r"/tag/\S+/\?focus=movie"),
-        #     callback="parse_list", follow=True),
-        # Rule(LinkExtractor(allow=r"/tag/$"),
-        #     callback="parse_type_list", follow=True)
-        Rule(LinkExtractor(allow=r"/subject/\d+/($|\?\w+)"),
-            callback="parse_item", follow=True),
+        Rule(LinkExtractor(allow=("\/subject\/\d+\/($|\?\w+)",)),callback="parse_item", follow=True),
     )
     # def __init__(self):
     #     self.headers =HEADERS
     #     self.cookies ={}
-
+    #
     # def start_requests(self):
     #     for i, url in enumerate(self.start_urls):
     #         yield FormRequest(url, meta = {'cookiejar': i}, \
     #                           headers = self.headers, \
     #                           cookies =self.cookies,callback=self.parse_type_list)
 
-    def parse(self, response):
-        yield Request(response.url,callback=self.parse_type_list)
-        pass
-    def parse_type_list(self,response):
-        #$x('//*[@class="tagCol"]/tbody/tr/td/a/text()')
-        for tag in response.xpath('//*[@class="tagCol"]/tbody/tr/td/a/text()').extract():
-            log.msg('tag : '+tag)
-            # yield Request('http://www.douban.com/link2/?url=http://www.douban.com/tag/'+tag.encode('utf8')+'/movie&type=tag_more&name='+tag.encode('utf8')+'&focus=&mod=movie',callback=self.parse_list)
-            yield Request('http://movie.douban.com/tag/'+tag.encode('utf8'),callback=self.parse_list)
-        pass
-    def parse_list(self,response):
-        #log.msg('crawle list : '+response.url)
-        for link in response.xpath(('//*[@class="article"]/div/dl/dd/a/@href')).extract():
-            yield Request(link,callback=self.parse_item)
-        next = response.xpath('//link[@rel="next"]/@href').extract()
-        #if next:yield Request(NEXT_PAGE_RE.sub(next,response.url),callback=self.parse_list)
-        if next:yield Request(next[0],callback=self.parse_list)
-        pass
+    # def parse(self, response):
+    #     yield Request(response.url,callback=self.parse_type_list)
+    #     pass
+    # def parse_type_list(self,response):
+    #     #$x('//*[@class="tagCol"]/tbody/tr/td/a/text()')
+    #     for tag in response.xpath('//*[@class="tagCol"]/tbody/tr/td/a/text()').extract():
+    #         log.msg('tag : '+tag)
+    #         # yield Request('http://www.douban.com/link2/?url=http://www.douban.com/tag/'+tag.encode('utf8')+'/movie&type=tag_more&name='+tag.encode('utf8')+'&focus=&mod=movie',callback=self.parse_list)
+    #         yield Request('http://movie.douban.com/tag/'+tag.encode('utf8'),callback=self.parse_list)
+    #     pass
+    # def parse_list(self,response):
+    #     #log.msg('crawle list : '+response.url)
+    #     # for link in response.xpath('//*[@class="article"]/div/dl/dd/a/@href').extract():
+    #     #     yield Request(link,callback=self.parse_item)
+    #     next = response.xpath('//link[@rel="next"]/@href').extract()
+    #     #if next:yield Request(NEXT_PAGE_RE.sub(next,response.url),callback=self.parse_list)
+    #     if next:yield Request(next[0],callback=self.parse_list)
+    #     pass
     def parse_item(self,response):
         log.msg('crawle item : '+response.url)
         item = MovieItem()
@@ -86,7 +68,7 @@ class DoubanSpider(scrapy.Spider):
         item['actors'] = self.get_actors(response)
         item['imdbId'] = self.get_imdbId(response)
         item['imdbScore'] = 0
-        item['intoduction'] = self.get_introduction(response)
+        item['introduction'] = self.get_introduction(response)
         item['runtime'] = self.get_runtime(response,item['type'])
         item['poster'] = ""
         item['site']="douban"
@@ -104,7 +86,7 @@ class DoubanSpider(scrapy.Spider):
         M = IMDB_RE.search(S)
         return M.group(0)[26:] if M is not None else ""
     def get_screenwriters(self,response):
-        screenwriters = response.xpath('//*[@id="info"]/span[2]/span[2]/a[1]/text()').extract
+        screenwriters = response.xpath('//*[@id="info"]/span[2]/span[2]/a[1]/text()').extract()
         return  screenwriters if screenwriters else []
     def get_alias(self,response):
         S = "".join(response.xpath("//div[@id='info']").extract())

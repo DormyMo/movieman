@@ -9,6 +9,8 @@ import scrapy
 
 
 class MovieItem(scrapy.Item):
+    def toDict(self):
+        return self._values
     # define the fields for your item here like:
     # name = scrapy.Field()
     title = scrapy.Field()

@@ -15,9 +15,10 @@ class MoviesPipeline(object):
         self.db = self.client['movies']
         self.posts = self.db['douban']
     def process_item(self, item, spider):
-        storeContent = item
+        storeContent = item.toDict()
         storeContent['_id']=item['imdbId']
         storeContent['update_time']=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print storeContent
         try:
             post_id = self.posts.insert(storeContent)
             print 'store 2 mongo :',post_id
