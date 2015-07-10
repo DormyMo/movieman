@@ -70,7 +70,7 @@ class DoubanSpider(CrawlSpider):
         item['imdbScore'] = 0
         item['introduction'] = self.get_introduction(response)
         item['runtime'] = self.get_runtime(response,item['type'])
-        item['poster'] = ""
+        item['poster'] = self.getPoster(response)
         item['site']="douban"
         item['siteId'] = self.getSiteId(response)
         item['siteScore'] = self.get_score(response)
@@ -79,6 +79,9 @@ class DoubanSpider(CrawlSpider):
         log.msg(item)
         yield  item
         pass
+    def getPoster(self,response):
+        poster = response.xpath('//*[@id="mainpic"]/a/img/@src').extract()
+        return poster[0] if poster else ""
     def getSiteId(self,response):
         return response.url.split('/')[-2]
     def get_imdbId(self,response):

@@ -30,7 +30,7 @@ class MovieItem(scrapy.Item):
     imdbScore = scrapy.Field()
     introduction = scrapy.Field()
     runtime=scrapy.Field()
-    poster  = scrapy.Field()
+    poster  = scrapy.Field()#海报
     download = scrapy.Field()
     site = scrapy.Field()
     siteId = scrapy.Field()
