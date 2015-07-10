@@ -16,7 +16,7 @@ class MoviesPipeline(object):
         self.posts = self.db['douban']
     def process_item(self, item, spider):
         storeContent = item.toDict()
-        storeContent['_id']=item['imdbId']
+        storeContent['_id']=item['siteId']
         storeContent['update_time']=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         print storeContent
         try:
