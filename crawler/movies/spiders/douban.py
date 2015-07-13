@@ -53,7 +53,7 @@ class DoubanSpider(CrawlSpider):
     def parse_item(self,response):
         log.msg('crawle item : '+response.url)
         item = MovieItem()
-        item['title']=response.xpath('//*[@id="content"]/h1/span[1]/text()').extract()
+        item['title']=self.getTitle(response)
         item['year']=self.get_year(response)
         item['type'] = self.get_type(response)
         item['genres'] = self.get_genres(response)
@@ -79,6 +79,9 @@ class DoubanSpider(CrawlSpider):
         log.msg(item)
         yield  item
         pass
+    def getTitle(self,response):
+        title = response.xpath('//*[@id="content"]/h1/span[1]/text()').extract()
+        return title[0] if title else ""
     def getPoster(self,response):
         poster = response.xpath('//*[@id="mainpic"]/a/img/@src').extract()
         return poster[0] if poster else ""
