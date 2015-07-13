@@ -14,6 +14,7 @@ ALIAS_RE = re.compile(ur"又名:</span> (.+?)<br>")
 IMDB_RE = re.compile(ur"http:\/\/www\.imdb\.com\/title\/\w+")
 # SCREENWRITER_RE = re.compile(ur"编剧:</span> (.+?)<br>")
 NUM_RE = re.compile(r"(\d+)")
+YEAR_RE = re.compile(r"[\d]{4}")
 NEXT_PAGE_RE=re.compile(r'\?start=\d+')
 class DoubanSpider(CrawlSpider):
     name = "douban"
@@ -76,8 +77,9 @@ class DoubanSpider(CrawlSpider):
         item['siteScore'] = self.get_score(response)
         item['siteVoteCount'] =self.get_vote(response)
         item['siteStars'] = self.get_stars(response,item['siteVoteCount'])
+        if item['year']<1000:item['year']=0
         if item['year']==0 and item['pubTime']:
-            m = NUM_RE.match(item['pubTime'][0])
+            m = YEAR_RE.match(item['pubTime'][0])
             if m:
                 item['year'] = int(m.group(0))
         # log.msg(item)
