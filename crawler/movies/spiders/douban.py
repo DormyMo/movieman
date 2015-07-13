@@ -76,7 +76,11 @@ class DoubanSpider(CrawlSpider):
         item['siteScore'] = self.get_score(response)
         item['siteVoteCount'] =self.get_vote(response)
         item['siteStars'] = self.get_stars(response,item['siteVoteCount'])
-        log.msg(item)
+        if item['year']==0 and item['pubTime']:
+            m = NUM_RE.match(item['pubTime'][0])
+            if m:
+                item['year'] = int(m.group(0))
+        # log.msg(item)
         yield  item
         pass
     def getTitle(self,response):
