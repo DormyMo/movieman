@@ -3,8 +3,25 @@ from __future__ import unicode_literals
 from django.db import models
 
 # Create your models here.
+# class MovieQuerySet(models.query.QuerySet):
+#     def queryByTitle(self,title):
+#         return self.filter(title__contains=title)
+#     def queryById(self,id):
+#         return self.filter(id=id)
+
+# class MovieManager(models.Manager):
+#     def get_query_set(self):
+#         return MovieQuerySet(self.model,using=self._db)
+#     def queryByTitle(self,title):
+#         return self.get_query_set().queryByTitle(title)
+#     def queryById(self,id):
+#         return self.get_query_set().queryById(id)
 class MovieManager(models.Manager):
-    pass
+    def query_by_title(self,title):
+        return self.filter(title__contains=title)
+    def query_by_id(self,id):
+        return self.filter(id=id)
+
 class Movie(models.Model):
     fields = ["id", "title", "year", "type", "imdbId", "imdbScore", "introduction", "runtime", "poster", "download", "site", "siteId", "siteStars", "siteVoteCount", "siteScore"]
     id = models.CharField(max_length=100,unique=True,primary_key=True)
@@ -32,8 +49,7 @@ class Movie(models.Model):
     siteVoteCount =models.IntegerField(default=0)
     def __unicode__(self):
         return self.title
-    def queryByTitle(self,title):
-        return self.objects.filter(title__contains=title).values(*Movie.fields)
+    objects = MovieManager()
 
 class Genres(models.Model):
     movie = models.ForeignKey(Movie)

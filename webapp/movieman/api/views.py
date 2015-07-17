@@ -12,9 +12,9 @@ def yearHist(request):
 def query(request):
     title = request.GET.get('title','')
     #movies = Movie.objects.filter(title__contains=title).values(*Movie.fields)
-    movies =Movie.objects.queryByTitle(title)
+    movies =Movie.objects.query_by_title(title).values(*Movie.fields)
     return JsonResponse(dict(data=list(movies)))
 def detail(request,id):
     print id
-    movies = Movie.objects.filter(id =id).values(*Movie.fields)
+    movies = Movie.objects.query_by_id(id).values(*Movie.fields)
     return JsonResponse(dict(data=list(movies)))
