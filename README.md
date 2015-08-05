@@ -1,4 +1,4 @@
 # movieman
 all about movies
 ##crawler
-Based on scrapy 1.0
+[read this ](https://github.com/DormyMo/movieman/tree/master/crawler)
